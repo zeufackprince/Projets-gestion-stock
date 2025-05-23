@@ -28,124 +28,55 @@ public class VenteService {
 
     private final VenteRepository venteRepo;
 
-    public Vente enregistrerVente(Vente vente) {
-        vente.setDate(LocalDate.now());
-        
-        for (VenteItem item : vente.getItems()) {
-            produitService.retirerQuantite(item.getProduit().getId(), item.getQuantite());
-            item.setVente(vente);
-        }
-        return venteRepo.save(vente);
-    }
-
-    public VenteDto newVente(Vente vente) {
-
-        VenteDto res = new VenteDto();
-
-        try {
-            
-            vente.setDate(LocalDate.now());
-
-            for (VenteItem item : vente.getItems()) {
-                produitService.retirerQuantite(item.getProduit().getId(), item.getQuantite());
-                item.setVente(vente);
-            }
-
-            
-
-            List<String> nomEtCoutTotal = new ArrayList<>();
-
-            double Tsum = 0.0;  Integer num = 0; double gain = 0.0;
-
-            for(VenteItem item: vente.getItems()) {
-
-                Optional<Produits> dbProd = this.produitRepository.findById(item.getProduit().getId());
-
-                if(!dbProd.isPresent()) {
-
-                    res.setMessage("Le Produit nes pas en BD, Veuillez reverifier votre requet!!!");
-                    return res;
-                }
-
-                nomEtCoutTotal.add(dbProd.get().getNom() + " "+ dbProd.get().getUPrice()+ " " + item.getPrixVendu() + item.getQuantite() * item.getPrixVendu());
-
-                num += item.getQuantite();
-
-                Tsum += item.getQuantite() * item.getPrixVendu();
-
-                gain = item.getPrixVendu() - dbProd.get().getUPrice();
-                
-                item.setPrix(Tsum);
-                item.setGain(gain);
-            }
-
-           
-            res.setGain(gain);
-            res.setDate(vente.getDate());
-            res.setCoutTotal(Tsum);
-            res.setTotalItem(num);
-            res.setNomProdEtPrixT(nomEtCoutTotal);
-            res.setMessage("Vente Enregistrer avec succes");
-
-            Vente dbData = venteRepo.save(vente);
-
-             res.setId(dbData.getId());
-
-        } catch (Exception e) {
-            
-            res.setMessage("Erreur lors du traitement de la requete " + e);
-            
-        }
-        
-        return res;
-
-    }
-
+    
     public VenteDto registerVente(Vente vente) {
-
         vente.setDate(LocalDate.now());
 
-        VenteDto res = new VenteDto();
-
+        VenteDto dto = new VenteDto();
         List<String> nomEtCoutTotal = new ArrayList<>();
+        double coutTotal = 0.0;
+        double prixVenduTotal = 0.0;
+        double totalGain = 0.0;
+        int totalItem = 0;
 
-        double Tsum = 0.0;  Integer num = 0;
+        for (VenteItem item : vente.getItems()) {
+            Produits prod = produitRepository.findById(item.getProduit().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Produit non trouvé"));
 
-        for (VenteItem item: vente.getItems()) {
+            double itemTotal = item.getQuantite() * item.getPrixVendu();
+            double itemGain = (item.getPrixVendu() - prod.getUPrice()) * item.getQuantite();
 
-            Optional<Produits> dbProd = this.produitRepository.findById(item.getProduit().getId());
+            nomEtCoutTotal.add("Code Prod: " + prod.getId() + 
+            ", Nom Prod: " + prod.getNom() + 
+            ", Quantite Produit: " + item.getQuantite() +
+            ", Prix unitaire: "+ prod.getUPrice() +
+            ", Prix vendu(Pv): " + item.getPrixVendu() + 
+            ", Total(Qte * Pv): " + itemTotal);
 
-            if(!dbProd.isPresent()){
+            coutTotal += itemTotal;
+            prixVenduTotal += itemTotal;
+            totalGain += itemGain;
+            totalItem += item.getQuantite();
 
-                throw new EntityNotFoundException("No Entity found");
-                
-            }else{
+            produitService.retirerQuantite(prod.getId(), item.getQuantite());
 
-                nomEtCoutTotal.add(dbProd.get().getNom() + " " + item.getQuantite() * dbProd.get().getUPrice());
-
-                num += item.getQuantite();
-
-                Tsum += item.getQuantite() * dbProd.get().getUPrice();
-            }
-
-            produitService.retirerQuantite(item.getProduit().getId(), item.getQuantite());
-            item.setPrix(Tsum);
+            item.setPrix(itemTotal);
+            item.setGain(itemGain);
             item.setVente(vente);
         }
 
-        res.setDate(vente.getDate());
-        res.setCoutTotal(Tsum);
-        res.setTotalItem(num);
-        res.setNomProdEtPrixT(nomEtCoutTotal);
+        Vente saved = venteRepo.save(vente);
 
-        Vente db = venteRepo.save(vente);
+        dto.setId(saved.getId());
+        dto.setDate(saved.getDate());
+        dto.setCoutTotal(coutTotal);
+        dto.setPrixVendu(prixVenduTotal);
+        dto.setGain(totalGain);
+        dto.setTotalItem(totalItem);
+        dto.setNomProdEtPrixT(nomEtCoutTotal);
+        dto.setMessage("Vente enregistrée avec succès");
 
-        res.setId(db.getId());
-
-
-
-        return res;
-        
+        return dto;
     }
 
     public List<VenteDto> getAllVente(){

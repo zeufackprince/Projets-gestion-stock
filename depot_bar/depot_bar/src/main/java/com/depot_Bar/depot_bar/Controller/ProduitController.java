@@ -33,16 +33,16 @@ public class ProduitController {
     private final ProduitRepository produitRepository;
 
     @PostMapping("/produit/creat")
-    public ProduitDto newproduit(@RequestBody Produits produits){
+    public ProduitDto newproduit(@RequestBody ProduitDto produits){
 
         ProduitDto res = new ProduitDto();
-        if(produits.getNom() == null || produits.getQte() <= 0 || produits.getUPrice() <= 0){
+        if(produits.getNom() == null || produits.getQte() <= 0 || produits.getUPrix() <= 0){
 
             res.setMessage("Error invalide entry" );
             
 
         }else{
-            res =  this.produitService.newproduit(produits.getNom(), produits.getQte(), produits.getUPrice());
+            res =  this.produitService.newproduit(produits.getNom(), produits.getQte(), produits.getUPrix());
         }
         
 

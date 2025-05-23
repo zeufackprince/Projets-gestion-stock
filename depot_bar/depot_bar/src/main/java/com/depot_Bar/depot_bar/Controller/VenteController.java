@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.depot_Bar.depot_bar.Dto.VenteDto;
 import com.depot_Bar.depot_bar.Models.Vente;
 import com.depot_Bar.depot_bar.Services.VenteService;
-import com.depot_Bar.depot_bar.Services.testService;
 
 import lombok.AllArgsConstructor;
 
@@ -28,26 +27,14 @@ public class VenteController {
 
     private final VenteService venteService;
 
-    private final testService tService;
-
-    // @PostMapping("/newVente")
-    // public ResponseEntity<Vente> enregistrerVente(@RequestBody Vente vente) {
-    //      venteService.enregistrerVente(vente);
-    // }
-
+    //Create a new vente
     @PostMapping("/newVente")
     public ResponseEntity<VenteDto> createVente(@RequestBody Vente vente) {
-        VenteDto venteDto = tService.registerVente(vente);
-        return ResponseEntity.ok(venteDto);
-    }
-
-
-    @PostMapping("/newVente1")
-    public ResponseEntity<VenteDto> enregistre(@RequestBody Vente vente) {
         VenteDto venteDto = venteService.registerVente(vente);
         return ResponseEntity.ok(venteDto);
     }
 
+    // GET all vente
     @GetMapping("/getAllVente")
     public ResponseEntity<List<VenteDto>> getAllVente(){
 

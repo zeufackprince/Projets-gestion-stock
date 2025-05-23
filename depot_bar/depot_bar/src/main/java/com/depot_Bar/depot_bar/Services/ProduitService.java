@@ -22,7 +22,7 @@ public class ProduitService {
 
     private final ProduitRepository proReop;
 
-    public ProduitDto newproduit(String nom, int qte, double uPrix) {
+    public ProduitDto newproduit(String nom, int qte, double uprix) {
 
         ProduitDto res = new ProduitDto();
 
@@ -37,7 +37,7 @@ public class ProduitService {
             }
 
             prod.setQte(qte);
-            prod.setUPrice(uPrix);
+            prod.setUPrice(uprix);
 
             Produits db = this.proReop.save(prod);
 
