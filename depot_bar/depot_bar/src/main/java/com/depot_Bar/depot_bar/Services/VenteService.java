@@ -43,8 +43,16 @@ public class VenteService {
             Produits prod = produitRepository.findById(item.getProduit().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Produit non trouvé"));
 
-            double itemTotal = item.getQuantite() * item.getPrixVendu();
-            double itemGain = (item.getPrixVendu() - prod.getUPrice()) * item.getQuantite();
+            double itemTotal;
+            double itemGain;
+            if (item.getPrixVendu() == 0) {
+                // Use UPrice for both itemTotal and itemGain
+                itemTotal = item.getQuantite() * prod.getUPrice();
+                itemGain = 0;
+            } else {
+                itemTotal = item.getQuantite() * item.getPrixVendu();
+                itemGain = (item.getPrixVendu() - prod.getUPrice()) * item.getQuantite();
+            }
 
             nomEtCoutTotal.add("Code Prod: " + prod.getId() + 
             ", Nom Prod: " + prod.getNom() + 
@@ -110,8 +118,18 @@ public class VenteService {
                 
                     }else{
 
-                        double itemTotal = item.getQuantite() * item.getPrixVendu();
-                        double itemGain = (item.getPrixVendu() - dbProd.get().getUPrice()) * item.getQuantite();
+                        double itemTotal;
+                        double itemGain;
+
+                        if (item.getPrixVendu() == 0) {
+                            // Use UPrice for both itemTotal and itemGain
+                            itemTotal = item.getQuantite() * dbProd.get().getUPrice();
+                            itemGain = 0;
+                        } else {
+                            itemTotal = item.getQuantite() * item.getPrixVendu();
+                            itemGain = (item.getPrixVendu() - dbProd.get().getUPrice()) * item.getQuantite();
+                        }
+
 
                         nomEtCoutTotal.add(
                             "CodeProduit: " + dbProd.get().getId() + 
@@ -119,7 +137,7 @@ public class VenteService {
                             ", Qte produit: " + item.getQuantite() +
                             ", Prix unitaire: " + dbProd.get().getUPrice() +
                             ", Prix vendu: " + item.getPrixVendu() +
-                            ", Total: " + item.getQuantite() * item.getPrixVendu()
+                            ", Total: " + itemTotal
                      );
 
                         coutTotal += itemTotal;
@@ -173,35 +191,62 @@ public class VenteService {
     }
 
     private VenteDto mapVenteToDto(Vente vente) {
-        VenteDto dto = new VenteDto();
-        dto.setId(vente.getId());
-        dto.setDate(vente.getDate());
 
+        VenteDto data = new VenteDto();
         List<String> nomEtCoutTotal = new ArrayList<>();
-        double Tsum = 0.0;
-        int totalItems = 0;
+        double coutTotal = 0.0;  
+        Integer totalItem = 0;
+        double prixVenduTotal = 0.0;
+        double totalGain = 0.0;
 
-        for (VenteItem item : vente.getItems()) {
-            Produits prod = produitRepository.findById(item.getProduit().getId())
-            .orElseThrow(() -> new EntityNotFoundException("Produit not found with ID: " + item.getProduit().getId()));
+        for(VenteItem item: vente.getItems()){
 
-            nomEtCoutTotal.add(
-                "CodeProduit: " + prod.getId() +
-                ", Nom produit: " + prod.getNom() +
-                ", Qte produit: " + item.getQuantite() +
-                ", Prix unitaire: " + prod.getUPrice() +
-                ", Total: " + (item.getQuantite() * prod.getUPrice())
-            );
+            Optional<Produits> dbProd = this.produitRepository.findById(item.getProduit().getId());
+            
+            if(!dbProd.isPresent()){
 
-            Tsum += item.getQuantite() * prod.getUPrice();
-            totalItems += item.getQuantite();
+                throw new EntityNotFoundException("No Entity found");
+                
+            }else{
+
+                double itemTotal;
+            double itemGain;
+            if (item.getPrixVendu() == 0) {
+                // Use UPrice for both itemTotal and itemGain
+                itemTotal = item.getQuantite() * dbProd.get().getUPrice();
+                itemGain = 0;
+            } else {
+                itemTotal = item.getQuantite() * item.getPrixVendu();
+                itemGain = (item.getPrixVendu() - dbProd.get().getUPrice()) * item.getQuantite();
+            }
+
+                nomEtCoutTotal.add(
+                    "CodeProduit: " + dbProd.get().getId() + 
+                    ", Nom produit: " + dbProd.get().getNom() + 
+                    ", Qte produit: " + item.getQuantite() +
+                    ", Prix unitaire: " + dbProd.get().getUPrice() +
+                    ", Prix vendu: " + item.getPrixVendu() +
+                    ", Total: " + itemTotal
+                );
+
+                coutTotal += itemTotal;
+                prixVenduTotal += itemTotal;
+                totalGain += itemGain;
+                totalItem += item.getQuantite();
+            }
+
         }
 
-        dto.setCoutTotal(Tsum);
-        dto.setTotalItem(totalItems);
-        dto.setNomProdEtPrixT(nomEtCoutTotal);
+        data.setId(vente.getId());
+        data.setPrixVendu(prixVenduTotal);
+        data.setDate(vente.getDate());
+        data.setCoutTotal(coutTotal);
+        data.setTotalItem(totalItem);
+        data.setGain(totalGain);
+        data.setNomProdEtPrixT(nomEtCoutTotal);
+        data.setMessage("Data fetched with success");
 
-        return dto;
+        return data;
     }
 
 
