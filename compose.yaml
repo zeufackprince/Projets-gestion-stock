@@ -9,9 +9,12 @@ services:
     ports:
       - "1010:1010"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://prince:LgJifeLkliZWka4kkRYCiYYGe9EmV1c6@dpg-d150fdbe5dus7394jjng-a.oregon-postgres.render.com:5432/mydb_6ebc
+      SPRING_DATASOURCE_URL: jdbc:postgresql://dpg-d150fdbe5dus7394jjng-a.oregon-postgres.render.com:5432/mydb_6ebc
       SPRING_DATASOURCE_USERNAME: prince
       SPRING_DATASOURCE_PASSWORD: LgJifeLkliZWka4kkRYCiYYGe9EmV1c6
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+
     # Uncomment and customize if needed:
     # depends_on:
     #   - db
