@@ -1,0 +1,57 @@
+# 1. Java build artifacts
+/target/
+*.class
+
+# 2. Development artifacts
+.idea/
+.vscode/
+*.swp
+*.swo
+dist/
+build/
+out/
+debug/
+*.log
+tmp/
+temp/
+*.tmp
+
+# 3. Test files and directories
+test/
+tests/
+
+# 4. Version control
+.git/
+.gitignore
+.gitattributes
+.svn/
+.hg/
+
+# 5. Environment and secrets
+.env*
+*.env
+*.pem
+*.key
+*.crt
+config.local.*
+*.local.yml
+
+# 6. Documentation and project files
+docs/
+*.md
+README*
+TODO.md
+
+# 7. Docker and Compose files
+Dockerfile*
+docker-compose*
+
+# 8. Local development
+.local/
+local/
+
+# 9. Miscellaneous
+*.bak
+*.old
+
+# Exclude nothing that is required for Maven build (keep .mvnw, .mvn/, pom.xml, etc.)

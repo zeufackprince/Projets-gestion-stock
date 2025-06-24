@@ -1,0 +1,18 @@
+services:
+  java-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: java-app
+    restart: unless-stopped
+    init: true
+    ports:
+      - "1010:1010"  # Exposed by Dockerfile
+    # env_file: ./.env  # Uncomment if .env file exists
+    # Add depends_on here if you add external services (e.g., databases)
+    # networks: [appnet]  # Uncomment if you add more services/networks
+
+# No external services (databases, caches, etc.) detected in the project structure or Dockerfile.
+# If you add a database or other service, add it here and update depends_on/networks accordingly.
+
+# No volumes section needed as there are no persistent data requirements for this service.
