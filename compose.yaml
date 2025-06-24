@@ -7,12 +7,13 @@ services:
     restart: unless-stopped
     init: true
     ports:
-      - "1010:1010"  # Exposed by Dockerfile
-    # env_file: ./.env  # Uncomment if .env file exists
-    # Add depends_on here if you add external services (e.g., databases)
-    # networks: [appnet]  # Uncomment if you add more services/networks
-
-# No external services (databases, caches, etc.) detected in the project structure or Dockerfile.
-# If you add a database or other service, add it here and update depends_on/networks accordingly.
-
-# No volumes section needed as there are no persistent data requirements for this service.
+      - "1010:1010"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://prince:LgJifeLkliZWka4kkRYCiYYGe9EmV1c6@dpg-d150fdbe5dus7394jjng-a.oregon-postgres.render.com:5432/mydb_6ebc
+      SPRING_DATASOURCE_USERNAME: prince
+      SPRING_DATASOURCE_PASSWORD: LgJifeLkliZWka4kkRYCiYYGe9EmV1c6
+    # Uncomment and customize if needed:
+    # depends_on:
+    #   - db
+    # networks:
+    #   - appnet

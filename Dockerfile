@@ -1,4 +1,3 @@
-
 # syntax=docker/dockerfile:1
 
 # --- Build stage ---
@@ -9,8 +8,8 @@ WORKDIR /app
 # Copy the rest of the source code
 COPY . .
 
-# # Build the application (skip tests for faster build)
-RUN chmod +x mvnw && ./mvnw clean install
+# Skip tests when building
+RUN chmod +x mvnw && ./mvnw clean install -DskipTests
 
 # --- Runtime stage ---
 FROM eclipse-temurin:21-jre
@@ -22,5 +21,4 @@ COPY --from=build /app/target/*.jar /app/app.jar
 # Expose the port the app runs on
 EXPOSE 1010
 
-# Use exec form for proper signal handling
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]
