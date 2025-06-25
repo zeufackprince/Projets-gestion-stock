@@ -15,7 +15,7 @@ public class DepotBarApplication {
 		SpringApplication.run(DepotBarApplication.class, args);
 	}
 
-	@GetMapping("hello")
+	@GetMapping("/hello")
 	public String test(){
 
 		return "Bonjour";
